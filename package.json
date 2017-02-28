@@ -13,6 +13,7 @@
   "author": "Knox",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.4.7",
     "express": "^4.14.1"
   }
 }
