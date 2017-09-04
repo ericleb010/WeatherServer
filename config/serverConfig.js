@@ -2,7 +2,7 @@ let fs = require("fs");
 
 
 const keySuffix = "_api_key";
-const spTypes = ['OWM'];
+const spTypes = ['OWM']; // In order of preference.
 
 let apiKeys = {};
 spTypes.forEach(type => 
@@ -12,6 +12,7 @@ spTypes.forEach(type =>
 // Return this constant for propagation.
 const config = {
     PORT: 4420,
+    LOG_LEVEL: "debug",
     // APIs
     SP_TYPES: spTypes,
     API_KEYS: apiKeys,
@@ -22,9 +23,7 @@ const config = {
         "OWM": (loc, key) => "weather?id=" + loc + "&APPID=" + key
     },
     // Defaults
-    DEFAULT_LOCATIONS: {
-        "OWM": "5992996"
-    }
+    DEFAULT_LOCATION: "kitchener"
 }
 
 module.exports = config;
