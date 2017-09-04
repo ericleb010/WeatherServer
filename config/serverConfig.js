@@ -2,19 +2,18 @@ let fs = require("fs");
 
 
 const keySuffix = "_api_key";
-const keyTypes = ['OWM'];
+const spTypes = ['OWM'];
+
 let apiKeys = {};
-keyTypes.forEach(type => 
+spTypes.forEach(type => 
     apiKeys[type] = fs.readFileSync("config/" + type + keySuffix, { encoding: "ascii" }));
 
 
 // Return this constant for propagation.
 const config = {
     PORT: 4420,
-    // Paths
-    REAL_TIME_PATH: "/current/:location",
     // APIs
-    KEY_TYPES: keyTypes,
+    SP_TYPES: spTypes,
     API_KEYS: apiKeys,
     API_BASE_URLS: {
         "OWM": "http://api.openweathermap.org/data/2.5/"
