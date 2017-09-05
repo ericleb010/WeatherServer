@@ -13,19 +13,42 @@ function fetchRealTimeWeather(loc) {
     const queries = config.REAL_TIME_QUERY;
     const urls = services.map(key => baseUrls[key] + queries[key](location, apiKeys[key]));
     const promises = urls.map((url, priority) => new Promise(function(resolve, reject) {
+        const service = services[priority];
+
         http.get(url, function(res) {
+            const contentType = res.headers["content-type"];
+            if (res.statusCode >= 400) {
+                const level = res.statusCode < 500 ? 'crit' : 'warning';
+                logger[level](`
+                    Request failed while fetching weather from %s (%s): 
+                    status code was %d`, service, url, res.statusCode);
+                res.resume();
+                reject();
+            }
+            else if (!/^application\/json/.test(contentType)) {
+                logger.alert(`
+                    Request failed while fetching weather from %s (%s):
+                    unexpected content-type %s`, service, url, contentType);
+                res.resume();
+                reject();
+            }
+
             let result = "";
             res.on("data", d => result += d);
             res.on("end", function() {
                 let final = {
                     "priority": priority,
-                    "service": services[priority],
+                    "service": service,
                     "data": result
                 }
                 logger.debug("Received data: %j", final)
                 resolve(final);
             });
-            // TODO error handling
+        }).on("error", function(err) {
+            logger.error(`
+                Request failed while fetching weather from %s (%s):
+                error object was `, service, url, err);
+            reject();
         });
     }));
 
