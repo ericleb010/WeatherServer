@@ -8,10 +8,10 @@ function Utils() {
     */
     this.sendRequestForWeather = function(serviceKey, url, successFunc, failFunc) {
         if (typeof serviceKey !== 'string' || typeof url !== 'string') {
-            throw new Error("Error: serviceKey and url must be of string type.");
+            throw new Error("serviceKey and url must be of string type.");
         }
         if (successFunc && typeof successFunc !== 'function' || failFunc && typeof failFunc !== 'function') {
-            throw new Error("Error: successFunc and failFunc must be of function type.");
+            throw new Error("successFunc and failFunc must be of function type.");
         }
 
         http.get(url, function(res) {

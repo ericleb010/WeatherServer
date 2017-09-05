@@ -28,12 +28,13 @@ function fetchRealTimeWeather(loc) {
             logger.debug("Received data for %s: %j", service, final);
             resolve(final);
         }, reject);
+
     }));
 
     // We want to return the result which matched a combination of the following criteria:
     // - Was one of the top two fastest responses
     // - Was from the highest prioritized service as defined in the config.
-    return Q.some(promises, Math.min(2, promises.length))
+    return Q.some(promises, Math.min(config.SERVICE_RESPONSES_MIN, promises.length))
             .spread(function(...responses) {
                 const finalSelection = responses.reduce((lowest, curr) => 
                     (lowest.priority < curr.priority) ? lowest : curr
@@ -44,8 +45,27 @@ function fetchRealTimeWeather(loc) {
                     finalSelection.service, finalSelection.priority
                 );
                 return finalSelection;
-            }
-    )
+            })
+            .catch(Promise.AggregateError, function(err) {
+                // Bluebird will error out if it can't reach the minimum.
+                // However, we'll make one more sanity check so we can send something back.
+                for (let i = 0; i < promises.length; i++) {
+                    if (promises[i].isFulfilled()) {
+                        return promises[i];
+                    }
+                }
+
+                // If we reach here, something went really wrong -- what are the odds we
+                // failed everything we attempted? -- like a network issue.
+                logger.alert("Could not contact any of %d external servers", promises.length);
+                logger.debug("AggregateError handled: ", err);
+                Q.reject(new Error("Could not connect to weather servers at this time."));
+            })
+            .catch(function(err) {
+                // Random error occurred, have to handle it.
+                logger.alert("Safely handled the following unknown error: ", err);
+                Q.reject(new Error("An error has occurred when trying to get real-time weather."))
+            })
 }
 
 
@@ -53,10 +73,15 @@ function fetchRealTimeWeather(loc) {
 function APIServices() {
     this.realTimeWeather = function(req, res, next) {
         let location = req.params.location;
+        res.success = true;
     
         fetchRealTimeWeather(location).then(function(result) {
             res.data = result;
             next();
+        }, function(err) {
+            res.success = false;
+            res.errorCode = 500;
+            res.error = err;
         });
     };
 }
