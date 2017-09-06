@@ -15,22 +15,20 @@ function Utils() {
         }
 
         http.get(url, function(res) {
-            const contentType = res.headers["Content-Type"];
+            const contentType = res.headers["content-type"];
             if (res.statusCode >= 400) {
                 res.resume();
                 const level = res.statusCode < 500 ? 'crit' : 'warning';
-                logger[level](`
-                    Request failed while fetching weather from %s (%s): 
-                    status code was %d`, serviceKey, url, res.statusCode
+                logger[level]("Request failed while fetching weather from %s (%s): " + 
+                    "status code was %d", serviceKey, url, res.statusCode
                 );
 
                 if (failFunc) failFunc();
             }
             else if (!/^application\/json/.test(contentType)) {
                 res.resume();
-                logger.alert(`
-                    Request failed while fetching weather from %s (%s):
-                    unexpected content-type %s`, serviceKey, url, contentType
+                logger.alert("Request failed while fetching weather from %s (%s):" +
+                    "unexpected content-type %s", serviceKey, url, contentType
                 );
 
                 if (failFunc) failFunc();
@@ -42,9 +40,8 @@ function Utils() {
                 if (successFunc) successFunc(result);
             });
         }).on("error", function(err) {
-            logger.error(`
-                Request failed while fetching weather from %s (%s):
-                error object was `, serviceKey, url, err
+            logger.error("Request failed while fetching weather from %s (%s):" +
+                "error object was %j", serviceKey, url, err, {}
             );
 
             if (failFunc) failFunc();

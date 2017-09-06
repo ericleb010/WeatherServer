@@ -1,6 +1,10 @@
-let server = require("./server.js");
+let router = require("express").Router();
+
 let api = require("./apiServices.js");
 let formatter = require("./formatter.js");
 
 // Define routes for the API
-server.get("/current/:location", api.realTimeWeather, formatter.sendStandardData);
+router.get("/", api.heartbeat, formatter.sendStandardData);
+router.get("/current/:location", api.realTimeWeather, formatter.sendStandardData);
+
+module.exports = router;
