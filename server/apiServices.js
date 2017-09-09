@@ -1,4 +1,4 @@
-let Q = require("bluebird");
+let Promise = require("bluebird");
 let logger = require("winston");
 
 let config = require("../config/serverConfig.js");
@@ -25,7 +25,7 @@ function fetchRealTimeWeather(loc) {
                 "service": service,
                 "data": result
             };
-            logger.debug("Formed data for %s: %j", service, final);
+            logger.debug("Received data for %s: %j", service, final, {});
             resolve(final);
         }, reject);
 
@@ -34,14 +34,13 @@ function fetchRealTimeWeather(loc) {
     // We want to return the result which matched a combination of the following criteria:
     // - Was one of the top two fastest responses
     // - Was from the highest prioritized service as defined in the config.
-    return Q.some(promises, Math.min(config.SERVICE_RESPONSES_MIN, promises.length))
+    return Promise.some(promises, Math.min(config.SERVICE_RESPONSES_MIN, promises.length))
             .spread(function(...responses) {
                 const finalSelection = responses.reduce((lowest, curr) => 
                     (lowest.priority < curr.priority) ? lowest : curr
                 );
 
-                logger.debug(`
-                    Final selection was %s, priority %d`, 
+                logger.debug("Final selection was %s, priority %d",
                     finalSelection.service, finalSelection.priority
                 );
                 return finalSelection;
@@ -58,31 +57,36 @@ function fetchRealTimeWeather(loc) {
                 // If we reach here, something went really wrong -- what are the odds we
                 // failed everything we attempted? -- like a network issue.
                 logger.alert("Could not contact any of %d external servers", promises.length);
-                logger.debug("AggregateError handled: ", err);
-                Q.reject(new Error("Could not connect to weather servers at this time."));
+                logger.debug("AggregateError handled: %j", err, {});
+                return Promise.reject(new Error("Could not connect to weather servers at this time."));
             })
-            .catch(function(err) {
+            .error(function(err) {
                 // Random error occurred, have to handle it.
-                logger.alert("Safely handled the following unknown error: ", err);
-                Q.reject(new Error("An error has occurred when trying to get real-time weather."))
-            })
+                logger.alert("Safely handled the following unknown error: %j", err, {});
+                return Promise.reject(new Error("An error has occurred when trying to get real-time weather."));
+            });
 }
 
 
 // Export an object of Express-compatible middleware functions.
 function APIServices() {
+    this.heartbeat = function(req, res, next) {
+        res.success = true;
+        res.data = { status: "OK" };
+        next();
+    };
+
     this.realTimeWeather = function(req, res, next) {
         let location = req.params.location;
         res.success = true;
     
         fetchRealTimeWeather(location).then(function(result) {
             res.data = result;
-            next();
-        }, function(err) {
+        }).catch(function(err) {
             res.success = false;
-            res.errorCode = 500;
+            res.errorCode = 503;
             res.error = err;
-        });
+        }).finally(() => next());
     };
 }
 
