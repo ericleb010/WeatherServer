@@ -1,3 +1,4 @@
+let logger = require("winston");
 
 function Formatter() {
     function standardResponse(data, status) {
@@ -9,16 +10,19 @@ function Formatter() {
 
     this.sendStandardData = function(req, res) {
         let payload;
-        res.type('application/json');
-        if (res.success) {
-            res.status(res.errorCode);
-            payload = standardResponse(res.data, res.errorCode);
-            payload.error = res.error.message;
+
+        if (!res.success) {
+            payload = standardResponse(res.data, res.errorCode || 500);
+            if (res.error) {
+                payload.error = res.error.message;
+            }
         }
         else {
-            payload = standardResponse
+            payload = standardResponse(res.data);
         }
-        res.send(payload);
+
+        logger.debug("Payload: %j", payload, {});
+        res.json(payload);
     }
 }
 
