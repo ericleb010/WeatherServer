@@ -19,7 +19,7 @@ function fetchRealTimeWeather(loc) {
     const promises = urls.map((url, priority) => new Promise(function(resolve, reject) {
         const service = services[priority];
 
-        utils.sendRequestForWeather(service, url, function(result) {
+        utils.sendRequestForWeather(service, url).then(function(result) {
             let final = {
                 "priority": priority,
                 "service": service,
