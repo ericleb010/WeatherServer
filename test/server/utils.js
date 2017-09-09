@@ -37,7 +37,7 @@ describe("Utils Unit Test Suite", function() {
                         done();
                     });
 
-                    return expect(data).to.eventually.equal('{"data":"OK"}');
+                    expect(data).to.eventually.equal('{"data":"OK"}');
                 });
             });
         });
