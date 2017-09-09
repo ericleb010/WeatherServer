@@ -39,6 +39,7 @@ function Utils() {
             let result = "";
             res.on("data", d => result += d);
             res.on("end", function() {
+                logger.debug("Received data for %s: %j", serviceKey, result);
                 if (successFunc) successFunc(result);
             });
         }).on("error", function(err) {
