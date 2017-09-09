@@ -2,6 +2,8 @@ let expect = require("chai").expect;
 let mock = require("mock-require");
 let mockHttp = require("nock");
 
+require("../setup.js");
+
 let logger = require("../_mock/winston.js");
 let utils;
 
@@ -26,13 +28,16 @@ describe("Utils Unit Test Suite", function() {
                     mockHttp("http://www.example.com").get("/weather").reply(200, { data: "OK" });
                 });
 
-                it("should not error when serviceKey and a valid url are provided", function() {
-                    utils.sendRequestForWeather("A", "http://www.example.com/weather");
+                it("should not error when serviceKey and a valid url are provided", function(done) {
+                    let data = utils.sendRequestForWeather("A", "http://www.example.com/weather");
 
-                    setTimeout(function() {
+                    data.then(function() {
                         expect(logger.getLogCounts("err")).to.equal(0);
                         expect(logger.getLogCounts("debug")).to.equal(1);
-                    }, 500);
+                        done();
+                    });
+
+                    return expect(data).to.eventually.equal('{"data":"OK"}');
                 });
             });
         });
