@@ -25,7 +25,7 @@ function fetchRealTimeWeather(loc) {
                 "service": service,
                 "data": result
             };
-            logger.debug("Received data for %s: %j", service, final);
+            logger.debug("Formed data for %s: %j", service, final);
             resolve(final);
         }, reject);
 
