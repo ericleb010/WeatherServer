@@ -2,14 +2,24 @@ let http = require("http");
 let Promise = require("bluebird");
 let logger = require("winston");
 
+class ParameterError extends Error {
+    constructor(message) {
+        super(message || "Invalid parameter provided");
+        this.name = "ParameterError";
+    }
+}
+
 function Utils() {
 
     /*
         Helper function to send a GET request to a weather service.
     */
     this.sendRequestForWeather = function(serviceKey, url) {
-        if (typeof serviceKey !== 'string' || typeof url !== 'string') {
-            throw new Error("serviceKey and url must be of string type.");
+        if (typeof serviceKey !== "string") {
+            throw new ParameterError("serviceKey must be of string type.");
+        }
+        else if (typeof url !== "string") {
+            throw new ParameterError("url must be of string type.");
         }
 
         return new Promise(function(resolve, reject) {
@@ -17,7 +27,7 @@ function Utils() {
                 const contentType = res.headers["content-type"];
                 if (res.statusCode >= 400) {
                     res.resume();
-                    const level = res.statusCode < 500 ? 'crit' : 'warning';
+                    const level = res.statusCode < 500 ? 'alert' : 'warning';
                     logger[level]("Request failed while fetching weather from %s (%s): " + 
                         "status code was %d", serviceKey, url, res.statusCode
                     );
@@ -40,7 +50,7 @@ function Utils() {
                     resolve(result);
                 });
             }).on("error", function(err) {
-                logger.error("Request failed while fetching weather from %s (%s):" +
+                logger.err("Request failed while fetching weather from %s (%s):" +
                     "error object was %j", serviceKey, url, err, {}
                 );
 
@@ -48,6 +58,8 @@ function Utils() {
             });
         });
     }
+
+    this.ParameterError = ParameterError;
 }
 
 module.exports = new Utils();
