@@ -4,7 +4,7 @@
   "description": "Server hosting content for downstream components of WeatherPi",
   "main": "index.js",
   "scripts": {
-    "test": "nyc mocha test/[a-z]*/* && eslint --ignore-path .gitignore **/*.js && if [ ${?} ]; then echo \"\n  ✓ eslint passed\n\"; fi"
+    "test": "nyc mocha --require chai/register-expect --timeout=1000 test/[a-z]*/* && eslint --ignore-path .gitignore **/*.js && if [ ${?} ]; then echo \"\n  ✓ eslint passed\n\"; fi"
   },
   "repository": {
     "type": "git",
