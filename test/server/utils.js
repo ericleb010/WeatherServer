@@ -12,7 +12,7 @@ before(function() {
 
 beforeEach(function() {
     logger.clearLogs();
-})
+});
 
 describe("Utils Unit Test Suite", function() {
 
@@ -53,8 +53,8 @@ describe("Utils Unit Test Suite", function() {
 
             before(function() {
                 mockHttp("http://www.example.com").get("/weatherJunk").reply(200, '"ton of junk":3}', { "content-type": "application/json" });
-                mockHttp("http://www.example.com").get("/weather").reply(503);
-                mockHttp("http://www.example.com").get("/weatherNotFound").reply(404);
+                mockHttp("http://www.example.com").get("/weather").reply(500);
+                mockHttp("http://www.example.com").get("/weatherBad").reply(400);
                 mockHttp("http://www.example.com").get("/weatherBroken").replyWithError({message: "Failure", code: "ERROR"});
                 mockHttp("http://www.example.com").get("/a.html").reply(200, "<html></html>", { "content-type": "text/html" });
             });
@@ -71,7 +71,7 @@ describe("Utils Unit Test Suite", function() {
                 expect(data).to.eventually.equal('"ton of junk":3}');
             });
 
-            it("like from an overloaded server, should fail", function(done) {
+            it("like from a server error, should fail", function(done) {
                 let data = utils.sendRequestForWeather("ABC", "http://www.example.com/weather");
                 
                 data.catch(function() {
@@ -83,8 +83,8 @@ describe("Utils Unit Test Suite", function() {
                 expect(data).to.eventually.be.rejected;
             });
 
-            it("like from an unknown endpoint, should fail", function(done) {
-                let data = utils.sendRequestForWeather("ABC", "http://www.example.com/weatherNotFound");
+            it("like from sending a bad request, should fail", function(done) {
+                let data = utils.sendRequestForWeather("ABC", "http://www.example.com/weatherBad");
                 
                 data.catch(function() {
                     expect(logger.getLogCounts("alert")).to.equal(1);
