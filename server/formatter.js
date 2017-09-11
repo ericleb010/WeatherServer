@@ -18,7 +18,7 @@ function Formatter() {
             }
         }
         else {
-            payload = standardResponse(res.data);
+            payload = standardResponse(res.data, res.errorCode);
         }
 
         logger.debug("Payload: %j", payload, {});
