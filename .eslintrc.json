@@ -16,5 +16,11 @@
     "rules": {
         "node/no-unpublished-require": "off",
         "node/exports-style": ["error", "module.exports"]
+    },
+    "overrides": {
+        "files": "test/**/*.js",
+        "rules": {
+            "no-undef": "off"
+        }
     }
 }
