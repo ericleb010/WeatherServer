@@ -72,6 +72,7 @@ function fetchRealTimeWeather(loc) {
 function APIServices() {
     this.heartbeat = function(req, res, next) {
         res.success = true;
+        res.errorCode = 200;
         res.data = { status: "OK" };
         next();
     };
