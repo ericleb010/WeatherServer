@@ -6,7 +6,8 @@ let returnResponse = () => response;
 
 function newReq() {
     return req = {
-        getData: returnResponse
+        getData: returnResponse,
+        params: {}
     };
 }
 

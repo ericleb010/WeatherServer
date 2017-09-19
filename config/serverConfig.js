@@ -2,7 +2,7 @@ let fs = require("fs");
 
 
 const keySuffix = "_api_key";
-const spTypes = ['OWM']; // In order of preference.
+const spTypes = ["OWM"]; // In order of preference.
 
 let apiKeys = {};
 spTypes.forEach(type => 
@@ -13,6 +13,7 @@ spTypes.forEach(type =>
 const config = {
     PORT: 4420,
     LOG_LEVEL: "debug",
+    WAIT_TIME_MIN: 1000,
     SERVICE_RESPONSES_MIN: 2, // Overruled if spTypes is lacking in length.
     // APIs
     SP_TYPES: spTypes,
