@@ -5,6 +5,13 @@ let config = require("../config/serverConfig.js");
 let formatter = require("./formatter.js");
 let router = require("./routes.js");
 
+
+// Middleware to inject the config into the request object.
+function configInjection(req, res, next) {
+    req.config = config;
+    next();
+}
+
 logger.level = config.LOG_LEVEL;
 logger.setLevels(logger.config.syslog.levels);
 
@@ -13,9 +20,8 @@ server.listen(config.PORT, function() {
     logger.info("Press CTRL+C to exit.\n");
 });
 
-
 // Set up the router.
-server.use("/", router);
+server.use("/", configInjection, router);
 
 // Catch all unknown routes.
 server.use(function(req, res, next) {
