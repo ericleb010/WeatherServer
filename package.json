@@ -2,8 +2,9 @@
   "name": "weather-server",
   "version": "0.0.1",
   "description": "Server hosting content for downstream components of WeatherPi",
-  "main": "index.js",
+  "main": "server/server.js",
   "scripts": {
+    "start": "node server/server.js",
     "test": "nyc mocha --require chai/register-expect --timeout=1000 test/[a-z]*/* && eslint --ignore-path .gitignore **/*.js && if [ ${?} ]; then echo \"\n  ✓ eslint passed\n\"; fi"
   },
   "repository": {
